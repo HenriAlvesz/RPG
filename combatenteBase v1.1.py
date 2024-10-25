@@ -34,19 +34,60 @@ data_equips = {
         'tipo': 'corpo',
         'descricao': 'Armadura realmente simples.',
         'preco': 16,
-        'AGI': 2,
-        'RES': 1,
+        'VIG': 1,
+        'RES': 2,
     },
-    'Adaga de Bronze': { # (4)
+    'Adaga de Estanho': { # (4)
         'tipo': 'arma',
         'subtipo': 'adaga',
         'classificacao': 'leve',
-        'descricao': 'Uma adaga simples.',
+        'descricao': 'Você inicia sua aventura com uma dessa.',
         'preco': 15,
-        'crit_chance': 0.02,
-        'ATK': 2,
+        'crit_chance': -0.02,
+        'ATK': 1,
+        'AGI': 1,
+    },
+    'Adaga de Cobre': {
+        'tipo': 'arma',
+        'subtipo': 'adaga',
+        'classificacao': 'leve',
+        'descricao': 'Você inicia sua aventura com uma dessa.',
+        'preco': 18,
+        'crit_mult': -0.1,
+        'ATK': 1,
         'VIG': 1,
     },
+    'Adaga de Bronze': {
+        'tipo': 'arma',
+        'subtipo': 'adaga',
+        'classificacao': 'leve',
+        'descricao': 'Adaga feita de liga metálica de bronze.',
+        'preco': 30,
+        'crit_chance': 0.02,
+        'crit_mult': 0.1,
+        'ATK': 3,
+        'AGI': 2,
+    },
+    'Espada Enferrujada': {
+        'tipo': 'arma',
+        'subtipo': 'espada',
+        'classificacao': 'leve',
+        'descricao': 'Uma espada velha, não é muito boa.',
+        'preco': 25,
+        'crit_mult': -0.1,
+        'ATK': 3,
+    }
+    'Espada Antiga': {
+        'tipo': 'arma',
+        'subtipo': 'espada',
+        'classificacao': 'leve',
+        'descricao': 'Está em péssimas condições.',
+        'preco': 35,
+        'crit_mult': 0.1,
+        'precisao': -0.05,
+        'ATK': 5,
+        'VIG': -1,
+    }
 }
 data_runas = {}
 data_habilidades = {
@@ -77,7 +118,9 @@ data_classe = {
         'equips': [4, 4, 3, 1, 2, 'acessório'],
         'habilidades': [],
     },
-    'Guerreiro': {},
+    'Guerreiro': {
+        'equips': [],
+    },
 }
 
 data_estados = {
