@@ -4,6 +4,78 @@ import random
 
 # ---------- Dicionários ----------
 # (crie um módulo para isso)
+data_atrubutos = {
+    'ATK': {
+        'nome': 'Força',
+        'descricao': '<Descrição da força>',
+        'tipo': 'base',
+    },
+    'AGI': {
+        'nome': 'Agilidade',
+        'descricao': '<Descrição>',
+        'tipo': 'base',
+    },
+    'VIG': {
+        'nome': 'Vigor',
+        'descricao': '<Descrição>',
+        'tipo': 'base',
+    },
+    'INT': {
+        'nome': 'Inteligência',
+        'descricao': '<Descrição>',
+        'tipo': 'base',
+    },
+    'CAR': {
+        'nome': 'Carisma',
+        'descricao': '<Descrição>',
+        'tipo': 'base',
+    },
+    'RES': {
+        'nome': 'Resistência',
+        'descricao': '<Descrição>',
+        'tipo': 'base',
+    },
+    'evasao': {
+        'nome': 'Evasão',
+        'descricao': '<Descrição>',
+        'tipo': 'especial',
+    },
+    'precisao': {
+        'nome': 'Precisão',
+        'descricao': '<Descrição>',
+        'tipo': 'especial',
+    },
+    'refleccao': {
+        'nome': 'Reflexão',
+        'descricao': '<Descrição>',
+        'tipo': 'especial',
+    },
+    'dano_mult': {
+        'nome': 'Multiplicador de Dano',
+        'descricao': '<Descrição>',
+        'tipo': 'especial',
+    },
+    'defesa_mult': {
+        'nome': 'Multiplicador de Defesa',
+        'descricao': '<Descrição>',
+        'tipo': 'especial',
+    },
+    'crit_mult': {
+        'nome': 'Multiplicador de Crítico',
+        'descricao': '<Descrição>',
+        'tipo': 'especial',
+    },
+    'crit_chance': {
+        'nome': 'Chance de Crítico',
+        'descricao': '<Descrição>',
+        'tipo': 'especial',
+    },
+    'xp_mult': {
+        'nome': 'Multiplicador de XP obtido',
+        'descricao': '<Descrição>',
+        'tipo': 'especial',
+    },
+}
 # data_equips contém os dados dos equipamentos
 # Padrão: tipo, classificacao=geral, preco, tag, atributos especiais, atributos base
 data_equips = {
@@ -76,7 +148,7 @@ data_equips = {
         'preco': 25,
         'crit_mult': -0.1,
         'ATK': 3,
-    }
+    },
     'Espada Antiga': {
         'tipo': 'arma',
         'subtipo': 'espada',
@@ -88,6 +160,154 @@ data_equips = {
         'ATK': 5,
         'VIG': -1,
     }
+    'Gorro de Lã': {
+        'tipo': 'cabeça',
+        'classificacao': 'leve',
+        'descricao': 'Um gorro simples e leve que ajuda a manter o calor.',
+        'preco': 5,
+        'RES': 1,
+    },
+    'Sandálias de Linho': {
+        'tipo': 'pés',
+        'descricao': 'Sandálias leves e flexíveis feitas de linho.',
+        'preco': 4,
+        'AGI': 1,
+    },
+    'Túnica de Algodão': {
+        'tipo': 'corpo',
+        'descricao': 'Roupa leve que proporciona algum conforto.',
+        'preco': 17,
+        'RES': 1,
+        'VIG': 1,
+        'INT': 3,
+    },
+    'Faca de Cozinha': {
+        'tipo': 'arma',
+        'subtipo': 'adaga',
+        'classificacao': 'leve',
+        'descricao': 'Uma faca pequena, não muito adequada para combate.',
+        'preco': 10,
+        'ATK': 2,
+    },
+    'Máscara de Couro': {
+        'tipo': 'cabeça',
+        'classificacao': 'leve',
+        'descricao': 'Uma máscara rudimentar que protege o rosto.',
+        'preco': 12,
+        'RES': 2,
+        'AGI': 1,
+    },
+    'Botas de Aventureiro': {
+        'tipo': 'pés',
+        'descricao': 'Botas resistentes usadas por exploradores.',
+        'preco': 10,
+        'AGI': 2,
+        'RES': 1,
+    },
+    'Colete de Couro Reforçado': {
+        'tipo': 'corpo',
+        'descricao': 'Colete de couro resistente, útil para iniciantes.',
+        'preco': 20,
+        'VIG': 1,
+        'RES': 2,
+    },
+    'Clava de Madeira': {
+        'tipo': 'arma',
+        'subtipo': 'clava',
+        'classificacao': 'pesado',
+        'descricao': 'Uma clava rudimentar, mas que causa bons danos.',
+        'preco': 15,
+        'ATK': 2,
+        'precisao': -0.02,
+    },
+    'Espada de Pedra': {
+        'tipo': 'arma',
+        'subtipo': 'espada',
+        'classificacao': 'pesado',
+        'descricao': 'Uma espada feita de pedra bruta.',
+        'preco': 28,
+        'ATK': 7,
+        'AGI': -3,
+        'crit_chance': 0.01,
+    },
+    'Porrete de Orc': {
+        'tipo': 'arma',
+        'subtipo': 'clava',
+        'classificacao': 'pesado',
+        'descricao': 'Um porrete feito de madeira dura, confiável para iniciantes.',
+        'preco': 32,
+        'ATK': 5,
+        'RES': 3,
+        'AGI': -2,
+    },
+    'Cinto de Escamas': {
+        'tipo': 'acessório',
+        'descricao': 'Protege parcialmente o tronco. Feita de escamas de cobra.',
+        'preco': 46,
+        'RES': 4,
+        'CAR': 4,
+    },
+    'Anel de Madeira': {
+        'tipo': 'acessório',
+        'classificacao': 'leve',
+        'descricao': 'Um anel simples feito de madeira. Aumenta a resistência levemente.',
+        'preco': 5,
+        'RES': 1,
+    },
+    'Colar de Conchas': {
+        'tipo': 'acessório',
+        'classificacao': 'leve',
+        'descricao': 'Um colar feito de conchas, conferindo um toque de estilo.',
+        'preco': 8,
+        'AGI': 1,
+    },
+    'Pulseira de Couro': {
+        'tipo': 'acessório',
+        'classificacao': 'leve',
+        'descricao': 'Uma pulseira de couro que dá um pouco de proteção.',
+        'preco': 6,
+        'VIG': 1,
+    },
+    'Broche de Ferro': {
+        'tipo': 'acessório',
+        'classificacao': 'leve',
+        'descricao': 'Um broche pequeno, mas resistente, que pode ser usado na roupa.',
+        'preco': 7,
+        'RES': 1,
+        'precisao': 0.01,
+    },
+    'Amuleto de Pedra Preciosa': {
+        'tipo': 'acessório',
+        'classificacao': 'leve',
+        'descricao': 'Um amuleto brilhante que aumenta a sorte do portador.',
+        'preco': 15,
+        'CAR': 2,
+        'crit_chance': 0.02,
+    },
+    'Cinto de Tecido Reforçado': {
+        'tipo': 'acessório',
+        'classificacao': 'leve',
+        'descricao': 'Um cinto que proporciona suporte adicional e resistência.',
+        'preco': 12,
+        'VIG': 2,
+        'RES': 1,
+    },
+    'Bracelete de Ferro Forjado': {
+        'tipo': 'acessório',
+        'classificacao': 'pesado',
+        'descricao': 'Um bracelete feito de ferro forjado, oferecendo boa proteção.',
+        'preco': 20,
+        'RES': 3,
+        'defesa_mult': 0.08,
+    },
+    'Coroa de Louros': {
+        'tipo': 'acessório',
+        'classificacao': 'leve',
+        'descricao': 'Uma coroa simbólica que aumenta o carisma do portador.',
+        'preco': 18,
+        'CAR': 3,
+        'xp_mult': 0.1,
+    },
 }
 data_runas = {}
 data_habilidades = {
@@ -221,6 +441,7 @@ class CombatenteBase:
         self.defesa_mult = 1.0  # Denominador de dano recebido
         self.crit_chance = 0.1  # Chance de critico
         self.crit_mult = 1.75  # Multiplicador de dano em caso de critico
+        self.xp_mult = 1.0 # Multiplicador de XP obtido
         # Lista de ações em espera (class Action) para execução imediata
         self.lista_actions = []
         self.action_count = 1  # Quantidade de ações por turno
@@ -307,7 +528,7 @@ class CombatenteBase:
         return grupo_monstros if self.is_monstro() or inimigo else grupo_herois
 
     def add_xp(self, xp):
-        self.xp += xp
+        self.xp += round(xp * self.get_param('xp_mult'))
         while self.xp >= self.xp_necessario:
             self.subir_nivel()
 
@@ -327,7 +548,7 @@ class CombatenteBase:
 
     # ----------- Batalha -----------
     def add_estado(self, estado_id):
-        novo_estado = copy.deepcopy(data_estados[estado_id])
+        novo_estado = copy.deepcopy(list(data_estados.values())[estado_id])
         if any(estado == novo_estado for estado in self.estados):
             return
         self.estados.append(novo_estado)
