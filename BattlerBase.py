@@ -1,6 +1,35 @@
 # Bibliotecas
 import copy
 import random
+import os
+
+import sys
+
+def esperar_tecla():
+    print("Pressione qualquer tecla para continuar...\n")
+    # Se o sistema for Windows
+    if sys.platform == 'win32':
+        import msvcrt
+        msvcrt.getch()
+    # Se o sistema for Unix/Linux ou macOS
+    else:
+        import tty, termios
+        # Captura o estado atual do terminal e espera uma tecla
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(sys.stdin.fileno())
+            sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
+def limpar_terminal():
+    # Verifica o sistema operacional
+    if os.name == 'nt':  # Windows
+        os.system('cls')
+    else:  # Mac e Linux
+        os.system('clear')
+
 
 # ---------- Dicionários ----------
 # (crie um módulo para isso)
@@ -159,7 +188,7 @@ data_equips = {
         'precisao': -0.05,
         'ATK': 5,
         'VIG': -1,
-    }
+    },
     'Gorro de Lã': {
         'tipo': 'cabeça',
         'classificacao': 'leve',
@@ -250,7 +279,8 @@ data_equips = {
     'Anel de Madeira': {
         'tipo': 'acessório',
         'classificacao': 'leve',
-        'descricao': 'Um anel simples feito de madeira. Aumenta a resistência levemente.',
+        'descricao': 'Um anel simples feito de madeira. ' +\
+        'Aumenta a resistência levemente.',
         'preco': 5,
         'RES': 1,
     },
@@ -389,7 +419,7 @@ data_itens = {
 
 
 def novo_equip(equip_id):
-    data = copy.deepcopy(data_equips)  # Desfaz a referência
+    data = data_equips
     equip = {  # Dados padrões
         'nome': 'N/d',
         'id': None,
@@ -398,11 +428,12 @@ def novo_equip(equip_id):
         'classificacao': 'geral',
         'descricao': 'N/d',
         'preco': 0,
-        'tag': ''
+        'tag': '',
+        'runas': [],
     }
     if type(equip_id) is int:
-        equipBase = list(data.values())[equip_id]
-        equip['nome'] = list(data.keys())[equip_id]
+        equipBase = copy.deepcopy(list(data.values())[equip_id])
+        equip['nome'] = copy.deepcopy(list(data.keys())[equip_id])
         equip['id'] = equip_id
         for chave, valor in equipBase.items():
             equip[chave] = valor
@@ -441,11 +472,12 @@ class CombatenteBase:
         self.defesa_mult = 1.0  # Denominador de dano recebido
         self.crit_chance = 0.1  # Chance de critico
         self.crit_mult = 1.75  # Multiplicador de dano em caso de critico
-        self.xp_mult = 1.0 # Multiplicador de XP obtido
+        self.xp_mult = 1.0  # Multiplicador de XP obtido
         # Lista de ações em espera (class Action) para execução imediata
         self.lista_actions = []
         self.action_count = 1  # Quantidade de ações por turno
-        self.causar_estados = [] # Lista de dicionários {estado_id: x, chance: y}
+        self.causar_estados = [
+        ]  # Lista de dicionários {estado_id: x, chance: y}
         self.evitar_estados = []
         # Info: informações adicionais inúteis em batalha
         self.info = {'batalhas': 0, 'morreu': 0, 'matou': 0}
@@ -545,6 +577,20 @@ class CombatenteBase:
 
     def init_equips(self):
         return self.classe.get('equips', [])
+    # Equipar equipamento
+    def set_equip(self, equip_obj, equip_id):
+        if equip_id >= len(self.equips):
+            return False
+        old_equip = self.equips[equip_id]
+        if old_equip['tipo'] != equip_obj['tipo']:
+            return False
+            self.equips[equip_id] = equip_obj
+            self.get_aliados().add_equip(old_equip)
+        return equip_obj
+
+    def interpretar_input(self, input_):
+        if input_ == '':
+            return None
 
     # ----------- Batalha -----------
     def add_estado(self, estado_id):
@@ -562,14 +608,23 @@ class CombatenteBase:
     def executar_dano(self, action, alvo):
         for tipo, dano in action.dano:
             alvo[tipo] -= dano
+
         for tipo, dreno in action.drenar:
             alvo[tipo] -= dreno
-            self[tipo] += dreno
+            # Aqui acessa o atributo correspondente em self
+            setattr(self, tipo, getattr(self, tipo) + dreno)
         alvo.hab_reagir(alvo, action)
 
+    def dano_modificador(self, alvo, action):
+        action.dano['vida'] *= \
+        self.get_param('dano_mult') / alvo.get_param('defesa_mult')
+        action.drenar['vida'] *= \
+        self.get_param('dano_mult') / alvo.get_param('defesa_mult')
+
     def hab_atacar(self, action, alvo):
-        dano = max(0, self.get_param('ATK') - alvo.get_param('RES'))
+        dano = max(0, self.get_param('ATK') * 2 - alvo.get_param('RES'))
         action.dano['vida'] = dano
+        self.dano_modificador(alvo, action)
         self.executar_dano(alvo, action)
 
     def hab_defender(self):
@@ -606,6 +661,7 @@ class CombatenteBase:
         for equip in self.equips:
             name = equip["tipo"].capitalize() + ":"
             print(f' {name}{"."*(13-len(name))} {equip["nome"]}')
+        print('')
 
 
 # Classes que herdam de CombatenteBase, útil para comportamentos específicos
@@ -624,6 +680,7 @@ class CombatenteMonstro(CombatenteBase):
 class CombatenteFamiliar(CombatenteBase):
     pass
 
+
 class Action:
 
     def __init__(self):
@@ -634,9 +691,11 @@ class Action:
         self.critico = False
         self.refletido = False
         self.contra_atacado = False
-        self.causar_estados = [] # Lista de dicionários {estado_id: x, chance: y}
+        self.causar_estados = [
+        ]  # Lista de dicionários {estado_id: x, chance: y}
         self.dano = {'vida': 0, 'mana': 0, 'estamina': 0}
         self.drenar = {'vida': 0, 'mana': 0, 'estamina': 0}
+
 
 # Uma classe para armazenar os combatentes proporciona mais flexibilidade
 class grupo_base:
@@ -645,6 +704,7 @@ class grupo_base:
         self.membros = []
         self.familiares = []
         self.itens = {}
+        self.equips = []
         self.ouro = 0
         self.cristais = 0
 
@@ -660,6 +720,27 @@ class grupo_base:
     def remove_familiar(self, companion):
         self.familiares.remove(companion)
 
+    def add_equip(self, equip_id):
+        equip = equip_id
+        if isinstance(equip_id, int):
+            equip = novo_equip(equip_id)
+        self.equips.append(equip)
+        return equip
+
+    def remove_equip(self, equip_obj):
+        self.equips.remove(equip_obj)
+
+
+batalha_log = []
+
+
+def add_log(string):
+    batalha_log.append(string)
+
+
+def exibir_log():
+    print('\n'.join(batalha_log))
+
 
 grupo_herois = grupo_base()
 grupo_monstros = grupo_base()
@@ -669,14 +750,22 @@ minha_classe = 'Ladrão'  # Digamos que tenha sido o input VÁLIDO do jogador
 novo_heroi = CombatenteHeroi("Guilherme", nova_classe(minha_classe), 6, 4, 5)
 grupo_herois.add_membro(novo_heroi)
 
-novo_monstro = CombatenteMonstro("Slime", {}, 99, 99, 1)
+novo_monstro = CombatenteMonstro("Slime", {}, 5, 3, 6)
 grupo_monstros.add_membro(novo_monstro)
 
-print("\n")
-grupo_herois.membros[0].exibir_atributos()
+#print("\n")
+#grupo_herois.membros[0].exibir_atributos()
 
-print("\n")
+#print("\n")
 grupo_herois.membros[0].exibir_equips()
 
-#print(grupo_herois.membros[0].ATK)
-#print(grupo_herois.membros[0].get_param('crit_chance'))
+#exibir_log()
+
+equip = grupo_herois.add_equip(0)
+grupo_herois.membros[0].set_equip(equip, 0)
+
+grupo_herois.membros[0].exibir_equips()
+
+
+
+#print(grupo_herois.equips)
